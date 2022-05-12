@@ -10,5 +10,6 @@ namespace DNS_clientWF
     {
         void AddDomainNameIpPair(string domainName, string ip);
         bool TryGetIp(string domainName, out string ip);
+        Dictionary<string, string> GetDomainNameIpPair();
     }
 }

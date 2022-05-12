@@ -1,12 +1,13 @@
-using DnsClient;
+
 using System.Text.Json;
+using System.Linq;
 
 namespace DNS_clientWF
 {
     public partial class Form1 : Form
     {
         private DnsClient client;
-        private Dictionary<string, string> domainNameIpPairs;
+        private IDnsClientCache domainNameIpPairsCache;
 
         public Form1()
         {
@@ -16,58 +17,26 @@ namespace DNS_clientWF
         private void Form1_Load(object sender, EventArgs e)
         {
             client = new DnsClient(new DnsClientFileCache());
-            domainNameIpPairs = new Dictionary<string, string>();
-
-            UpdateListBox();
+            domainNameIpPairsCache = new DnsClientDictionaryCache();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            client.GetIpAddress(textBox1.Text);
-
-            UpdateListBox();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            ClearJson();
+            string domainName = textBox1.Text;
+            string address = client.GetIpAddress(domainName);
+            domainNameIpPairsCache.AddDomainNameIpPair(domainName, address);
 
             UpdateListBox();
         }
     
         private void UpdateListBox()
         {
-            if (File.Exists(DnsClientFileCache.pathToFileCache))
+            Dictionary<string, string> domainNameIpPairs = domainNameIpPairsCache.GetDomainNameIpPair();
+            listBox1.Items.Clear();
+            foreach(var domainNameIpPair in domainNameIpPairs)
             {
-                using (var sr = new StreamReader(DnsClientFileCache.pathToFileCache))
-                {
-                    string json = sr.ReadToEnd();
-
-                    domainNameIpPairs = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-
-                    listBox1.Items.Clear();
-
-                    foreach (var pair in domainNameIpPairs)
-                    {
-                        listBox1.Items.Add($"{pair.Key}:{pair.Value}");
-                    }
-                }
+                listBox1.Items.Add($"{domainNameIpPair.Key}: {domainNameIpPair.Value}");
             }           
-        }
-
-        private void ClearJson()
-        {
-            if (File.Exists(DnsClientFileCache.pathToFileCache))
-            {
-                using (var sw = new StreamWriter(DnsClientFileCache.pathToFileCache, false))
-                {
-                    string json = "{}";
-
-                    sw.Write(json);
-                }
-            }
-
         }
     }
 }

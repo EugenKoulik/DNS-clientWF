@@ -5,8 +5,21 @@ namespace DNS_clientWF
 {
     internal class DnsClientFileCache : IDnsClientCache
     {
-        internal const string pathToFileCache = "dnsClientCache.json";
+        const string pathToFileCache = "dnsClientCache.json";
         public void AddDomainNameIpPair(string domainName, string ip)
+        {
+            Dictionary<string, string> domainNameIpPairs = GetDomainNameIpPair();
+
+            domainNameIpPairs[domainName] = ip;
+
+            using (var sw = new StreamWriter(pathToFileCache, false))
+            {
+                string json = JsonSerializer.Serialize(domainNameIpPairs);
+                sw.Write(json);
+            }
+        }
+
+        public Dictionary<string, string> GetDomainNameIpPair()
         {
             Dictionary<string, string> domainNameIpPairs;
 
@@ -23,22 +36,14 @@ namespace DNS_clientWF
                 }
             }
 
-            if (domainNameIpPairs.ContainsKey(domainName))
-                return;
-
-            domainNameIpPairs.Add(domainName, ip);
-            using (var sw = new StreamWriter(pathToFileCache, false))
-            {
-                string json = JsonSerializer.Serialize(domainNameIpPairs);
-                sw.Write(json);
-            }
+            return domainNameIpPairs;
         }
 
         public bool TryGetIp(string domainName, out string ip)
         {
             if (!File.Exists(pathToFileCache))
             {
-                ip = default;
+                ip = string.Empty;
                 return false;
             }
             Dictionary<string, string> domainNameIpPairs;
@@ -50,7 +55,7 @@ namespace DNS_clientWF
 
             if (domainNameIpPairs == null || !domainNameIpPairs.ContainsKey(domainName))
             {
-                ip = default;
+                ip = string.Empty;
                 return false;
             }
 
