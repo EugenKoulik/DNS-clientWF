@@ -23,7 +23,16 @@ namespace DNS_clientWF
         private void button1_Click(object sender, EventArgs e)
         {
             string domainName = textBox1.Text;
-            string address = client.GetIpAddress(domainName);
+            string address = string.Empty;
+            try
+            {
+                address = client.GetIpAddress(domainName);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
             domainNameIpPairsCache.AddDomainNameIpPair(domainName, address);
 
             UpdateListBox();
@@ -37,6 +46,11 @@ namespace DNS_clientWF
             {
                 listBox1.Items.Add($"{domainNameIpPair.Key}: {domainNameIpPair.Value}");
             }           
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            
         }
     }
 }
