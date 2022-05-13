@@ -38,7 +38,6 @@ namespace DNS_clientWF
                 MessageBox.Show(ex.Message);
                 return;
             }
-            dnsClientMemoryCache.AddDomainNameIpPair(domainName, address);
 
             UpdateListBox();
         }
