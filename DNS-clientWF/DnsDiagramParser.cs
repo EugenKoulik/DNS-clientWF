@@ -23,19 +23,47 @@ namespace DNS_clientWF
         {
             CheckResponceStatus(responce);
 
-            var ip = new StringBuilder();
-
-            for(int offset = udpRequestDiagramLength; offset < responce.Length; offset += 16)
+            var ipAddresses = new StringBuilder();
+            int offset = udpRequestDiagramLength;
+            while(offset < responce.Length)
             {
-                for(int ipAddressOffset = offset + 12; ipAddressOffset < offset + 16; ipAddressOffset++)
+                int type = GetType(offset, responce);
+                int rdLength = GetRdLength(offset, responce);
+                offset += 12;
+                if(type == 1)
                 {
-                    ip.Append($"{responce[ipAddressOffset]}.");
+                    var ipAddress = GetIpAddress(offset, rdLength, responce);
+                    ipAddresses.Append(ipAddress);
                 }
-                ip.Remove(ip.Length - 1, 1);
-                ip.Append(" ");
+                offset += rdLength;
             }
+            if(ipAddresses.Length == 0)
+                throw new Exception("Данное доменное имя не существует.");
+            return ipAddresses.ToString();
+        }
 
-            return ip.ToString();
+        static int GetType(int offset, byte[] responce)
+        {
+            int type = (responce[offset + 2] << 8) + responce[offset + 3];
+            return type;
+        }
+
+        static int GetRdLength(int offset, byte[] responce)
+        {
+            int rdlength = (responce[offset + 10] << 8) + responce[offset + 11];
+            return rdlength;
+        }
+
+        static StringBuilder GetIpAddress(int offset, int rdLength, byte[] responce)
+        {
+            var ipAddress = new StringBuilder();
+            for (int ipAddressOffset = offset; ipAddressOffset < offset + rdLength; ipAddressOffset++)
+            {
+                ipAddress.Append($"{responce[ipAddressOffset]}.");
+            }
+            ipAddress.Remove(ipAddress.Length - 1, 1);
+            ipAddress.Append(" ");
+            return ipAddress;
         }
 
         static void CheckResponceStatus(byte[] responce)
