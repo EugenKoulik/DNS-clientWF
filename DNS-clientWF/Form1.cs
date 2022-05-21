@@ -21,7 +21,9 @@ namespace DNS_clientWF
             var domainNamePairsFromFile = dnsClientFileCache.GetDomainNameIpPairs();
             dnsClientMemoryCache = new DnsClientDictionaryCache();
             dnsClientMemoryCache.AddDomainNameIpPairs(domainNamePairsFromFile);
-            client = new DnsClient(dnsClientMemoryCache);
+            int dnsServerIp = 134744072;
+            int dnsServerPort = 53;
+            client = new DnsClient(dnsClientMemoryCache, dnsServerIp, dnsServerPort);
             UpdateListBox();
         }
 

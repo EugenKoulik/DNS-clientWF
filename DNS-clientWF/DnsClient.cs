@@ -5,17 +5,14 @@ namespace DNS_clientWF
 {
     internal class DnsClient
     {
-        const int dnsServerIp = 134744072;
+        readonly IPEndPoint dnsServerEndPoint;
 
-        const int dnsServerPort = 53;
+        readonly IDnsClientCache dnsClientCache;
 
-        IPEndPoint dnsServerEndPoint = new(dnsServerIp, dnsServerPort);
-
-        IDnsClientCache dnsClientCache;
-
-        public DnsClient(IDnsClientCache dnsClientCache)
+        public DnsClient(IDnsClientCache dnsClientCache, int dnsServerIp, int dnsServerPort)
         {
             this.dnsClientCache = dnsClientCache;
+            dnsServerEndPoint = new IPEndPoint(dnsServerIp, dnsServerPort);
         }
 
         public string GetIpAddress(string domainName)
