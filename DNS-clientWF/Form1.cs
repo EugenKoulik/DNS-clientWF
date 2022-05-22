@@ -23,17 +23,23 @@ namespace DNS_clientWF
             dnsClientMemoryCache.AddDomainNameIpPairs(domainNamePairsFromFile);
             int dnsServerIp = 134744072;
             int dnsServerPort = 53;
-            client = new DnsClient(dnsClientMemoryCache, dnsServerIp, dnsServerPort);
+            var dnsSuffixSearchList = new DnsSuffixSearchList();
+            client = new DnsClient(dnsClientMemoryCache, dnsServerIp, dnsServerPort, dnsSuffixSearchList);
             UpdateListBox();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             string domainName = textBox1.Text;
-            string address = string.Empty;
+            bool isLastSymbolPoint = domainName.Last() == '.';
+            bool addSuffix = checkBox1.Checked && !isLastSymbolPoint;
+            if (isLastSymbolPoint)
+            {
+                domainName = new string(domainName.Take(domainName.Length - 1).ToArray());
+            }
             try
             {
-                address = client.GetIpAddress(domainName);
+                string address = client.GetIpAddress(domainName, addSuffix);
             }
             catch(Exception ex)
             {

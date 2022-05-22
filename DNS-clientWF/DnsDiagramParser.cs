@@ -76,7 +76,7 @@ namespace DNS_clientWF
                 case RCodes.ServerFailure:
                     throw new Exception("Server failure - The name server was unable to process this query due to a problem with the name server.");
                 case RCodes.NameError:
-                    throw new Exception("Данное доменное имя не существует.");
+                    throw new DomainNameNotFoundException("Данное доменное имя не существует.");
                 case RCodes.NotImplemented:
                     throw new Exception("Not Implemented - The name server does not support the requested kind of query.");
                 case RCodes.Refused:
