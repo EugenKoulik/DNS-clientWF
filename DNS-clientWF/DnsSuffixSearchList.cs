@@ -10,19 +10,35 @@ namespace DNS_clientWF
     {
         string[] suffixes;
 
+        const string pathToFile = "dnsSuffixesList.txt";
+
         public DnsSuffixSearchList()
         {
-            suffixes = new string[] { ".ru", ".com", ".org" };
+            if (File.Exists(pathToFile))
+            {
+                suffixes = GetSuffixesFromFile();
+            }
         }
         public bool TryGetSuffix(int attemptNumber, out string suffix)
         {
             suffix = string.Empty;
-            if(attemptNumber >= suffixes.Length + 1 || attemptNumber < 1)
+            if(suffixes == null || attemptNumber >= suffixes.Length + 1 || attemptNumber < 1)
             {
                 return false;
             }
             suffix = suffixes[attemptNumber - 1];
             return true;
+        }
+
+        string[] GetSuffixesFromFile()
+        {
+            string[] suffixes;
+            using (var sr = new StreamReader(pathToFile))
+            {
+                string text = sr.ReadToEnd();
+                suffixes = text.Split(new string[] { " ", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            }
+            return suffixes;
         }
     }
 }
